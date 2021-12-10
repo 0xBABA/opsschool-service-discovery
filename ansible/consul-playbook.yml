@@ -1,0 +1,66 @@
+---
+- name: install consul on nodes
+  hosts: aws_ec2
+  # become: yes
+  gather_facts: no
+  vars: 
+    run_for_server: "1"
+    run_for_agent: "1"
+
+  tasks:
+    - name: debug run parameters
+      debug:
+        msg: run_for_server = {{run_for_server}} run_for_agent = {{run_for_agent}} 
+
+    - name: install pip3 on target ec2 instances
+      apt:
+        name: 
+        - python3-pip
+        state: present
+        #TODO: change update_cache to yes before submitting!!!! 
+        update_cache: no
+      become: yes
+
+    - name: install boto3 on target ec2 instances
+      pip:
+        name: boto3==1.20.*
+        state: present
+
+    # - name: gather information about ec2 instances
+    #   amazon.aws.ec2_instance_info:
+    #     region: us-east-1
+    #     filters: 
+    #       "tag:Name": "opsschool-consul-*"
+    #       instance-state-name: [ "running"]
+    #   register:
+    #     consul_ec2_info
+    #   tags:
+    #     - gather_ec2_info
+    
+    # - name: save instance tags
+    #   set_fact:
+
+
+    # - name: debug ec2 info
+    #   debug:
+    #     # var: consul_ec2_info.instances.tags
+    #     # msg: "consul_agent = {{consul_agent}}"
+    #     msg: "consul_server = {{consul_server}} consul_agent = {{consul_agent}}"
+    #   tags: 
+    #     - gather_ec2_info
+          
+
+
+    - name: include consul-server role
+      include_role:
+        name: consul-server
+      when: consul_server == true and run_for_server == "1"
+      tags:
+        - include_role
+  
+    - name: include consul-agent role
+      include_role:
+        name: consul-agent
+      when: consul_agent == true and run_for_agent == "1"
+      tags:
+        - include_role

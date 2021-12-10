@@ -6,8 +6,13 @@ filters:
   tag:Name:
     - opsschool-consul*
   instance-state-name: running
+hostnames:
+  - network-interface.association.public-ip
 keyed_groups:
   - prefix: consul_server
     key: tags['consul_server']
-  - prefix: consule_agent
+  - prefix: consul_agent
     key: tags['consul_agent']
+
+all:
+  ec2_region: us-east-1

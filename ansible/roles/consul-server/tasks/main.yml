@@ -1,0 +1,5 @@
+---
+# tasks file for roles/consul-server
+- name: debug consul server role was included
+  debug:
+    msg: "I am consul server role debug task"
