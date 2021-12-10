@@ -1,0 +1,62 @@
+---
+- name: install dependencies on target ec2 instances
+  # become: yes
+  apt:
+    name: 
+    - python3-pip
+    - unzip
+    - dnsmasq
+    state: present
+    update_cache: yes
+
+- name: install boto3 on target ec2 instances
+  pip:
+    name: boto3==1.20.*
+    state: present
+
+- name: configure dnsmasq
+  # become: yes
+  template:
+    src: dnsmasq.conf.j2
+    dest: "{{ dnsmasq_configuration_file }}"
+    mode: "0644"
+  notify:
+    - test dnsmasq configuration
+    - restart dnsmasq
+  tags:
+    - dnsmasq_setup
+
+
+- name: update resolved.conf
+  # become: yes
+  template: 
+    src: resolved.conf.j2
+    dest: /etc/systemd/resolved.conf
+  tags:
+    - dnsmasq_setup
+
+- name: add Hashicorp's official GPG key
+  # become: yes
+  apt_key:
+    url: https://apt.releases.hashicorp.com/gpg
+    state: present
+  tags: 
+    - consul_install
+
+- name: add Hashicorp stable repository to apt
+  # become: yes
+  apt_repository:
+    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ansible_distribution_release}} stable"
+    state: present
+  tags: 
+    - consul_install
+  
+- name: install consul 
+  # become: yes
+  apt:
+    name: 
+    - consul
+    state: present
+    update_cache: yes
+  tags: 
+    - consul_install
