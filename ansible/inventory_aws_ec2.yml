@@ -1,0 +1,13 @@
+---
+plugin: aws_ec2
+regions:
+  - us-east-1
+filters:
+  tag:Name:
+    - opsschool-consul*
+  instance-state-name: running
+keyed_groups:
+  - prefix: consul_server
+    key: tags['consul_server']
+  - prefix: consule_agent
+    key: tags['consul_agent']
