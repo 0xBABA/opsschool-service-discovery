@@ -8,7 +8,7 @@ resource "aws_instance" "consul_server" {
   iam_instance_profile        = aws_iam_instance_profile.consul-join.name
   associate_public_ip_address = true
 
-  vpc_security_group_ids = [aws_security_group.consul-server-sg.id]
+  vpc_security_group_ids = [aws_security_group.consul-sg.id]
 
   tags = {
     Name          = "opsschool-consul-server-${count.index}"
@@ -25,7 +25,7 @@ resource "aws_instance" "consul_agent" {
   subnet_id                   = aws_subnet.public.id
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.consul-join.name
-  vpc_security_group_ids      = [aws_security_group.consul-agent-sg.id]
+  vpc_security_group_ids      = [aws_security_group.consul-sg.id]
 
   tags = {
     Name         = "opsschool-consul-agent-${count.index}"
