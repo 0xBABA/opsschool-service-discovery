@@ -1,18 +1,42 @@
 ---
+- name: add Hashicorp's official GPG key
+  # become: yes
+  apt_key:
+    url: https://apt.releases.hashicorp.com/gpg
+    state: present
+  tags: 
+    - consul_install
+    - add_hashicorp_repo
+
+
+- name: add Hashicorp main repository to apt
+  # become: yes
+  apt_repository:
+    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ansible_distribution_release}} main"
+    state: present
+  tags: 
+    - consul_install
+    - add_hashicorp_repo
+
+
 - name: install dependencies on target ec2 instances
   # become: yes
   apt:
     name: 
-    - python3-pip
-    - unzip
+    # - python3-pip
+    # - unzip
     - dnsmasq
+    - consul=1.8.5
     state: present
     update_cache: yes
+  tags:
+   - consul_install
+   - dnsmasq_setup
 
-- name: install boto3 on target ec2 instances
-  pip:
-    name: boto3==1.20.*
-    state: present
+# - name: install boto3 on target ec2 instances
+#   pip:
+#     name: boto3==1.20.*
+#     state: present
 
 - name: configure dnsmasq
   # become: yes
@@ -27,36 +51,62 @@
     - dnsmasq_setup
 
 
-- name: update resolved.conf
+- name: configure resolved.conf
   # become: yes
   template: 
     src: resolved.conf.j2
     dest: /etc/systemd/resolved.conf
+  notify: 
+    - restart systemd-resolved
   tags:
     - dnsmasq_setup
 
-- name: add Hashicorp's official GPG key
-  # become: yes
-  apt_key:
-    url: https://apt.releases.hashicorp.com/gpg
-    state: present
-  tags: 
-    - consul_install
 
-- name: add Hashicorp stable repository to apt
-  # become: yes
-  apt_repository:
-    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ansible_distribution_release}} stable"
+- name: flush handlers
+  meta: flush_handlers
+
+
+- name: create consul group
+  group:
+    name: consul
     state: present
+  tags:
+   - consul_setup
+
+- name: create consul user
+  user:
+    name: consul
+    group: consul
   tags: 
-    - consul_install
-  
-- name: install consul 
-  # become: yes
-  apt:
-    name: 
-    - consul
-    state: present
-    update_cache: yes
+    - consul_setup
+
+- name: setup consul directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: consul
+    owner: consul
+  loop:
+    - /opt/consul
+    - /etc/consul.d
+    - /run/consul
   tags: 
-    - consul_install
+    - consul_setup
+
+- name: configure consul service
+  copy:
+    src: ./files/consul.service
+    dest: /etc/systemd/system/consul.service
+    group: consul
+    owner: consul
+  tags:
+   - consul_setup
+
+- name: enable and start consul.d service
+  systemd:
+    daemon_reload: yes
+    name: consul
+    enabled: yes
+    state: started
+  tags:
+   - consul_setup

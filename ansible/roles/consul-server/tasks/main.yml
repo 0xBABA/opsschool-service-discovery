@@ -1,5 +1,17 @@
 ---
-# tasks file for roles/consul-server
 - name: debug consul server role was included
   debug:
-    msg: "I am consul server role debug task"
+    msg: "I am consul server role debug task {{ansible_host}}"
+  tags:
+    - debug_server
+
+- name: configure consul
+  become: yes
+  become_user: consul
+  template:
+    src: consul.config.json.j2
+    dest: "{{ consul_configuration_file_path }}"
+  notify:
+    - restart consul service
+  tags:
+    - consul_config

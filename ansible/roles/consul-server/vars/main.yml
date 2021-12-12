@@ -1,2 +1,2 @@
 ---
-# vars file for roles/consul-server
+consul_configuration_file_path: /etc/consul.d/config.json

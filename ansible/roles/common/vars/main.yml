@@ -1,3 +1,2 @@
 ---
 dnsmasq_configuration_file: /etc/dnsmasq.d/10-consul
-dnsmasq_service: dnsmasq

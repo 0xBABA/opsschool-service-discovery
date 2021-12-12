@@ -1,2 +1,9 @@
 ---
-# handlers file for roles/consul-server
+- name: restart consul service
+  become: yes
+  service:
+    name: consul
+    state: restarted
+  tags:
+    - consul_config
+  
