@@ -1,0 +1,27 @@
+---
+- name: install consul on nodes
+  hosts: aws_ec2
+  gather_facts: yes
+
+  tasks:
+    - name: include common role
+      vars:
+        ansible_become: yes
+      include_role:
+        name: common
+      tags:
+        - include_role
+
+    - name: include consul-server role
+      include_role:
+        name: consul-server
+      when: consul_server == true
+      tags:
+        - include_role
+  
+    - name: include consul-agent role
+      include_role:
+        name: consul-agent
+      when: consul_agent == true
+      tags:
+        - include_role

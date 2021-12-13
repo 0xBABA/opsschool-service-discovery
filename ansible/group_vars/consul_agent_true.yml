@@ -1,0 +1,2 @@
+consul_agent: true
+consul_server: false

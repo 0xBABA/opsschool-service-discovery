@@ -1,0 +1,11 @@
+---
+- name: configure consul
+  become: yes
+  become_user: consul
+  template:
+    src: consul.config.json.j2
+    dest: "{{ consul_configuration_file_path }}"
+  notify:
+    - restart consul service
+  tags:
+    - consul_config

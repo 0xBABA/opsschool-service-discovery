@@ -1,6 +1,6 @@
 resource "aws_security_group" "consul-sg" {
   name        = "consul-sg"
-  description = "Allow ssh & consul inbound traffic"
+  description = "Allow ssh, consul and tcp inbound traffic"
   vpc_id      = aws_vpc.consul_vpc.id
 
   ingress {
@@ -9,6 +9,13 @@ resource "aws_security_group" "consul-sg" {
     protocol    = "-1"
     self        = true
     description = "Allow all inside security group"
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {

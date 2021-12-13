@@ -1,0 +1,13 @@
+---
+- name: restart consul service
+  become: yes
+  service:
+    name: consul
+    state: restarted
+  tags:
+    - consul_setup
+
+- name: start nginx
+  service:
+    name: nginx
+    state: started

@@ -1,0 +1,32 @@
+---
+- name: install nginx
+  become: yes
+  apt:
+    name:
+      - nginx
+    state: present
+  notify:
+    - start nginx
+
+- name: copy webserver service config file to consul.d
+  become: yes
+  become_user: consul
+  copy:
+    src: ./files/webserver-service.json
+    dest: /etc/consul.d/webserver-service.json
+    group: consul
+    owner: consul
+  tags:
+  - consul_setup
+
+- name: configure consul
+  become: yes
+  become_user: consul
+  template:
+    src: consul.config.json.j2
+    dest: "{{ consul_configuration_file_path }}"
+  notify:
+    - restart consul service
+  tags:
+    - consul_setup
+
