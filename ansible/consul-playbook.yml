@@ -1,38 +1,27 @@
 ---
 - name: install consul on nodes
   hosts: aws_ec2
-  # become: yes
   gather_facts: yes
-  vars: 
-    run_common: "1"
-    run_for_server: "1"
-    run_for_agent: "1"
-
 
   tasks:
-    - name: debug run parameters
-      debug:
-        msg: run_for_server = {{run_for_server}} run_for_agent = {{run_for_agent}} 
-  
     - name: include common role
       vars:
         ansible_become: yes
       include_role:
         name: common
-      when: run_common == "1"
       tags:
         - include_role
 
     - name: include consul-server role
       include_role:
         name: consul-server
-      when: consul_server == true and run_for_server == "1"
+      when: consul_server == true
       tags:
         - include_role
   
     - name: include consul-agent role
       include_role:
         name: consul-agent
-      when: consul_agent == true and run_for_agent == "1"
+      when: consul_agent == true
       tags:
         - include_role

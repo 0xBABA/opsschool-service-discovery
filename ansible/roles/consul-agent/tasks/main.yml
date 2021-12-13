@@ -1,10 +1,4 @@
 ---
-- name: debug consul agent role was included
-  debug:
-    msg: "I am consul agent role debug task {{ansible_host}}"
-  tags:
-    - debug_agent
-
 - name: install nginx
   become: yes
   apt:
